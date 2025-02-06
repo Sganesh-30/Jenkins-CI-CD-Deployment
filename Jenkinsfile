@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKER_CREDENTIALS = 'docker-creds'
         GITHUB_CREDS = credentials('github-acc-creds')
+        GIT_TOKEN = credentials('Github-token')
     }
 
     stages {
@@ -73,6 +74,9 @@ pipeline {
             steps {
                 script {
                     bat '''
+
+                    git remote set-url origin https://%GIT_TOKEN%@github.com/Sganesh-30/Jenkins-CI-CD-Deployment.git
+
 
                     @echo off
                     cd kubernetes/
