@@ -51,11 +51,11 @@ pipeline {
             }
         }
         stage('Checkout Manifest & Update Image Tag') {
+            when {
+                branch 'PR*'
+            }
             steps {
                 script {
-                    when { 
-                        branch 'PR*'
-                    }
 
                     bat '''
 
