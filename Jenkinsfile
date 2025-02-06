@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS = 'docker-creds'
-        GITHUB_CREDS = credentials('github-acc-creds')
         GIT_TOKEN = credentials('github-cred')
     }
 
