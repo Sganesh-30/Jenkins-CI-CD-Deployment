@@ -53,7 +53,15 @@ pipeline {
         stage('Checkout Manifest & Update Image Tag') {
             steps {
                 script {
+                    when { 
+                        branch 'PR*'
+                    }
+
                     bat '''
+
+                    git checkout feature/ci-cd
+
+                    git checkout -b feature-$BUILD_ID
 
                     echo "Updating deployment.yaml with new image tag..."
                     powershell -Command "& { (Get-Content kubernetes\\deployment.yaml) -replace 'image: .*', 'image: sganesh3010/pizza-app:%GIT_COMMIT%' | Set-Content kubernetes\\deployment.yaml }"
@@ -69,7 +77,6 @@ pipeline {
         stage('Commit and Push') {
             steps {
                 script {
-        
                     bat '''
 
                     @echo off
@@ -93,7 +100,7 @@ pipeline {
                     if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
                     echo "Pushing changes..."
-                    git push -u origin main
+                    git push -u origin feature-$BUILD_ID
                     if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
                     echo "Changes pushed successfully!"
@@ -103,3 +110,6 @@ pipeline {
         }
     }
 }
+
+
+
