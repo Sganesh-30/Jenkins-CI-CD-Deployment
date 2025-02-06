@@ -3,8 +3,6 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS = 'docker-creds'
-        REPO_URL = 'https://github.com/Sganesh-30/pizza-menu-gitops-argocd.git'
-        LOCAL_DIR = 'pizza-menu-gitops-argocd'
         GITHUB_CREDS = credentials('github-acc-creds')
     }
 
