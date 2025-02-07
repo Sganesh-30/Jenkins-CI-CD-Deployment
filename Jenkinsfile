@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS = 'docker-creds'
-        GITHUB_CREDS = credentials('github-acc-creds')
+        GIT_TOKEN = credentials('github-cred')
     }
 
     stages {
@@ -53,7 +53,10 @@ pipeline {
         stage('Checkout Manifest & Update Image Tag') {
             steps {
                 script {
+
                     bat '''
+
+                    git checkout main
 
                     echo "Updating deployment.yaml with new image tag..."
                     powershell -Command "& { (Get-Content kubernetes\\deployment.yaml) -replace 'image: .*', 'image: sganesh3010/pizza-app:%GIT_COMMIT%' | Set-Content kubernetes\\deployment.yaml }"
@@ -69,8 +72,8 @@ pipeline {
         stage('Commit and Push') {
             steps {
                 script {
-        
                     bat '''
+                    git remote set-url origin https://%GIT_TOKEN%@github.com/Sganesh-30/Jenkins-CI-CD-Deployment.git
 
                     @echo off
                     cd kubernetes/
@@ -78,18 +81,21 @@ pipeline {
                     echo "Configuring Git..."
                     git config --global user.email "ganeshsg430@gmail.com"
                     git config --global user.name "Ganesh"
+                    git config --global core.autocrlf false  REM Prevent LF to CRLF warnings
 
                     echo "Checking Git status..."
                     git status
 
+                    echo "Ignoring unwanted files..."
+                    echo ".scannerwork/" >> .gitignore
+                    git rm -r --cached .scannerwork/ 2>NUL  REM Remove if already added accidentally
+
                     echo "Staging changes..."
-                    git add deployment.yaml
+                    git add -A
                     if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
-                    type deployment.yaml
-
-                    echo "Committing changes..."
-                    git commit -m "Update image to sganesh3010/pizza-app:%GIT_COMMIT%"
+                    echo "Checking for changes before commit..."
+                    git diff --staged --quiet || git commit -m "Update image to sganesh3010/pizza-app:%GIT_COMMIT%"
                     if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
                     echo "Pushing changes..."
@@ -103,3 +109,6 @@ pipeline {
         }
     }
 }
+
+
+
