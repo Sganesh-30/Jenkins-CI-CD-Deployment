@@ -81,27 +81,32 @@ pipeline {
                     echo "Configuring Git..."
                     git config --global user.email "ganeshsg430@gmail.com"
                     git config --global user.name "Ganesh"
+                    git config --global core.autocrlf false  REM Prevent LF to CRLF warnings
 
                     echo "Checking Git status..."
                     git status
 
+                    echo "Ignoring unwanted files..."
+                    echo ".scannerwork/" >> .gitignore
+                    git rm -r --cached .scannerwork/ 2>NUL  REM Remove if already added accidentally
+
                     echo "Staging changes..."
-                    git add -A  && echo "Files staged successfully" || exit /b %ERRORLEVEL%
+                    git add -A
+                    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
-                    type deployment.yaml
-
-                    echo "Committing changes..."
-                    git diff --staged --quiet || git commit -m "Update image to sganesh3010/pizza-app:%GIT_COMMIT%" || exit /b %ERRORLEVEL%
+                    echo "Checking for changes before commit..."
+                    git diff --staged --quiet || git commit -m "Update image to sganesh3010/pizza-app:%GIT_COMMIT%"
+                    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
                     echo "Pushing changes..."
-                    git push -u origin main || exit /b %ERRORLEVEL%
+                    git push -u origin main
+                    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
                     echo "Changes pushed successfully!"
                     '''
                 }
             }
         }
-
     }
 }
 
