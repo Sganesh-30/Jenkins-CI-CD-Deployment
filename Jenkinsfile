@@ -73,9 +73,7 @@ pipeline {
             steps {
                 script {
                     bat '''
-
                     git remote set-url origin https://%GIT_TOKEN%@github.com/Sganesh-30/Jenkins-CI-CD-Deployment.git
-
 
                     @echo off
                     cd kubernetes/
@@ -88,24 +86,22 @@ pipeline {
                     git status
 
                     echo "Staging changes..."
-                    git add deployment.yaml
-                    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+                    git add -A  && echo "Files staged successfully" || exit /b %ERRORLEVEL%
 
                     type deployment.yaml
 
                     echo "Committing changes..."
-                    git commit -m "Update image to sganesh3010/pizza-app:%GIT_COMMIT%"
-                    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+                    git diff --staged --quiet || git commit -m "Update image to sganesh3010/pizza-app:%GIT_COMMIT%" || exit /b %ERRORLEVEL%
 
                     echo "Pushing changes..."
-                    git push -u origin main
-                    if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+                    git push -u origin main || exit /b %ERRORLEVEL%
 
                     echo "Changes pushed successfully!"
                     '''
                 }
             }
         }
+
     }
 }
 
